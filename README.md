@@ -1,17 +1,17 @@
-## Installing Scalr 
+# Installing Scalr 
 
 Instruction: 
 https://scalr-wiki.atlassian.net/wiki/display/docs/Installation+and+Upgrade+Instructions 
 
-# Downloading and Installing the Scalr package 
+## Downloading and Installing the Scalr package 
 CentOS 7.x is RHEL-Based. 
 
 So we tried following commands:
 
-# Install the repository
+## Install the repository
 curl -L https://packagecloud.io/install/repositories/scalr/scalr-server-oss/script.rpm | sudo bash
 
-# Install Scalr
+## Install Scalr
 sudo yum install -y scalr-server
 
 
@@ -24,15 +24,15 @@ rm -f /var/run/yum.pid
 However the address of mirror file has changed, so we can't download again.
 So I copy the installation file from Zheng Chaoyue.
 
-##Configure Scalr
+# Configure Scalr
 
-# Generate (and display) the default configuration files.
+## Generate (and display) the default configuration files.
 sudo /opt/scalr-server/bin/scalr-server-wizard 
 
-# Reload/restart all scalr components with the new configuration
+## Reload/restart all scalr components with the new configuration
 sudo /opt/scalr-server/bin/scalr-server-ctl reconfigure
 
-## Accessing Scalr
+# Accessing Scalr
 To get IP of our server:
 ip r 
 default via 192.168.236.2 dev eno16777736  proto static  metric 1024 
