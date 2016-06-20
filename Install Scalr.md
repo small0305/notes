@@ -44,8 +44,10 @@ To get IP of our server:
 ip r 
 ```
 > default via 192.168.236.2 dev eno16777736  proto static  metric 1024 
-192.168.122.0/24 dev virbr0  proto kernel  scope link  src 192.168.122.1 
-192.168.236.0/24 dev eno16777736  proto kernel  scope link  src 192.168.236.128
+
+> 192.168.122.0/24 dev virbr0  proto kernel  scope link  src 192.168.122.1 
+
+> 192.168.236.0/24 dev eno16777736  proto kernel  scope link  src 192.168.236.128
 
 And ``192.168.236.128`` is our IP.
 
@@ -75,6 +77,7 @@ And then we read the file:
     "id": "d48bb202" 
   } 
 } 
+
 And our password is "38feaac3a6bc3ecc9a27a112".
 
 Email:taor@rc.inesa.com
