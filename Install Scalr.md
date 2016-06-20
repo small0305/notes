@@ -44,10 +44,10 @@ To get IP of our server:
 ip r 
 ```
 > default via 192.168.236.2 dev eno16777736  proto static  metric 1024 
-> 192.168.122.0/24 dev virbr0  proto kernel  scope link  src 192.168.122.1 
-> 192.168.236.0/24 dev eno16777736  proto kernel  scope link  src 192.168.236.128
+192.168.122.0/24 dev virbr0  proto kernel  scope link  src 192.168.122.1 
+192.168.236.0/24 dev eno16777736  proto kernel  scope link  src 192.168.236.128
 
-And 192.168.236.128 is our IP.
+And ``192.168.236.128`` is our IP.
 
 To get the password, we need to read the “*.json” file, which need the authority.
 So first we change to root:
