@@ -115,3 +115,6 @@ PID是指进程的ID，每个进程有自己的ID。
 ```taskset -p 1844```查看进程位置
 > pid 1844's current affinity mask: 1
 
+> 你可以用ps命令查看一下 pid是1844的进程的程序在什么位置。你先熟悉一下scalr的用法，到阅读程序的阶段，你需要了解程序的入口，就要用到ps命令。
+```ps aux```
+> root      1844  0.0  0.0 401380   112 ?        S    10:04   0:01 /opt/scalr-server/embedded/bin/httpd -f /opt/scalr-server/etc/httpd/httpd.c
