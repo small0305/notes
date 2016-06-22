@@ -53,7 +53,19 @@ IP地址标记了网络中的主机，端口默认为80，因此访问的是默�
 > -u ：udp，列出udp协议的服务
 
 > -n ：port number， 用端口号来显示
+
 > -l ：listening，列出当前监听服务
+
 > -p ：program，列出服务程序的PID
 
+使用```netstat -anp```
+提示需要root权限。
+
+``` su -```后再次```netstat -anp```
+得到
+> Active Internet connections (servers and established)
+
+> Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name    
+
+> tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      1844/httpd     
 
