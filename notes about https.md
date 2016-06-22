@@ -98,6 +98,7 @@ IP地址标记了网络中的主机，端口默认为80，因此访问的是默�
 >  httpd   27830 scalr-app    5u  IPv4  24312      0t0  TCP *:http (LISTEN)
 
 PID是指进程的ID，每个进程有自己的ID。
+[Linux系统学习笔记：进程](http://www.yeolar.com/note/2012/05/09/linux-process/)
 [CentOS进程管理](http://www.bkjia.com/Linuxjc/813418.html)
 > 程序是保存在存储介质中的可执行机器代码（或指令）和数据的集合，而进程是在计算机处理器执行中的计算机程序。他们的关系如下：
 
