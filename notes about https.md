@@ -69,3 +69,30 @@ IP地址标记了网络中的主机，端口默认为80，因此访问的是默�
 
 > tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      1844/httpd     
 
+用```[root@localhost ~]# lsof -i :80```
+
+>  COMMAND   PID      USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+
+>  httpd    1844      root    5u  IPv4  24312      0t0  TCP *:http (LISTEN)
+
+>  httpd    2212 scalr-app    5u  IPv4  24312      0t0  TCP *:http (LISTEN)
+
+>  httpd    2214 scalr-app    5u  IPv4  24312      0t0  TCP *:http (LISTEN)
+
+>  firefox  8039     small  306u  IPv4 210198      0t0  TCP 192.168.236.128:40283->202.89.233.104:http (ESTABLISHED)
+
+>  httpd    8116 scalr-app    5u  IPv4  24312      0t0  TCP *:http (LISTEN)
+
+>  httpd    8117 scalr-app    5u  IPv4  24312      0t0  TCP *:http (LISTEN)
+
+>  httpd    8136 scalr-app    5u  IPv4  24312      0t0  TCP *:http (LISTEN)
+
+>  httpd    8161 scalr-app    5u  IPv4  24312      0t0  TCP *:http (LISTEN)
+
+>  httpd    8177 scalr-app    5u  IPv4  24312      0t0  TCP *:http (LISTEN)
+
+>  httpd   24457 scalr-app    5u  IPv4  24312      0t0  TCP *:http (LISTEN)
+
+>  httpd   24473 scalr-app    5u  IPv4  24312      0t0  TCP *:http (LISTEN)
+
+>  httpd   27830 scalr-app    5u  IPv4  24312      0t0  TCP *:http (LISTEN)
