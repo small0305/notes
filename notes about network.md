@@ -7,3 +7,11 @@
 > DHCP? 自动网络地址分配
 
 > DNS
+
+> IP：10.200.43.69（HA节点，到控制节点需ssh到192.168.0.103）
+
+> rootpw：Inesa2014!
+
+> keystone username : test
+
+> test passwd：inesa2014
