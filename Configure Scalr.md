@@ -85,7 +85,8 @@ which is the same pid and the same configuration file.
 so we go on check the same file.
 ```[root@localhost bin]# vim /opt/scalr-server/etc/httpd/httpd.conf```
 
-```    <VirtualHost *:6270>
+```
+<VirtualHost *:6270>
       DocumentRoot /opt/scalr-server/embedded/scalr/app/www
 
       ErrorLog  /opt/scalr-server/var/log/httpd/web.app.error.log
