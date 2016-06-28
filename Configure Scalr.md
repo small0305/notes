@@ -26,9 +26,51 @@ To get the [Packages - Sync Shared Roles](https://scalr-wiki.atlassian.net/wiki/
 [root@localhost scalr-server]# cd bin/
 [root@localhost bin]# /opt/scalr-server/embedded/bin/httpd -h
 ```
-> Usage: /opt/scalr-server/embedded/bin/httpd [-D name] [-d directory] [-f file]
->                                            [-C "directive"] [-c "directive"]
->                                            [-k start|restart|graceful|graceful-stop|stop]
->                                            [-v] [-V] [-h] [-l] [-L] [-t] [-T] [-S] [-X]
-> Options:
 >  -f file            : specify an alternate ServerConfigFile
+
+```[root@localhost bin]# vim /opt/scalr-server/etc/httpd/httpd.conf```
+
+```# Proxy #
+
+    LoadModule proxy_module                 embedded/modules/mod_proxy.so
+
+    LoadModule slotmem_shm_module           embedded/modules/mod_slotmem_shm.so
+    LoadModule proxy_balancer_module        embedded/modules/mod_proxy_balancer.so
+    LoadModule lbmethod_byrequests_module   embedded/modules/mod_lbmethod_byrequests.so
+
+    LoadModule proxy_http_module            embedded/modules/mod_proxy_http.so
+
+
+    Listen 0.0.0.0:80
+
+    <VirtualHost 0.0.0.0:80>
+        ProxyPass /graphics           balancer://graphics/
+        ProxyPass /load_statistics    balancer://plotter/
+        ProxyPass /                   balancer://app/
+
+        # Add X-Forwarded-For header, but discard anything coming from upstream.
+        # TODO - Make this configurable
+        RequestHeader unset X-Forwarded-For
+        ProxyAddHeaders On
+        ProxyAddHeaders On
+
+      ErrorLog  /opt/scalr-server/var/log/httpd/web.proxy.error.log
+      <IfModule log_config_module>
+            CustomLog /opt/scalr-server/var/log/httpd/web.proxy.access.log combined
+      </IfModule>
+
+
+
+    </VirtualHost>
+
+    <Proxy balancer://app>
+        BalancerMember http://127.0.0.1:6270
+    </Proxy>
+
+    <Proxy balancer://graphics>
+        BalancerMember http://127.0.0.1:6271
+    </Proxy>
+
+    <Proxy balancer://plotter>
+        BalancerMember http://127.0.0.1:6272/load_statistics
+```
