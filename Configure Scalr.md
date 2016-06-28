@@ -30,7 +30,9 @@ To get the [Packages - Sync Shared Roles](https://scalr-wiki.atlassian.net/wiki/
 
 ```[root@localhost bin]# vim /opt/scalr-server/etc/httpd/httpd.conf```
 
-```# Proxy #
+we find the part of port 80 in the file.
+```
+# Proxy #
 
     LoadModule proxy_module                 embedded/modules/mod_proxy.so
 
@@ -59,8 +61,6 @@ To get the [Packages - Sync Shared Roles](https://scalr-wiki.atlassian.net/wiki/
             CustomLog /opt/scalr-server/var/log/httpd/web.proxy.access.log combined
       </IfModule>
 
-
-
     </VirtualHost>
 
     <Proxy balancer://app>
@@ -73,4 +73,38 @@ To get the [Packages - Sync Shared Roles](https://scalr-wiki.atlassian.net/wiki/
 
     <Proxy balancer://plotter>
         BalancerMember http://127.0.0.1:6272/load_statistics
+```
+if the link is ended with nothing than it jumps to balancer://app
+which is http://127.0.0.1:6270
+
+so we then check port 6270
+```[root@localhost bin]# netstat -antup | grep :6270```
+> tcp        0      0 127.0.0.1:6270          0.0.0.0:*               LISTEN      6444/httpd          
+
+which is the same pid and the same configuration file.
+so we go on check the same file.
+```[root@localhost bin]# vim /opt/scalr-server/etc/httpd/httpd.conf```
+
+```    <VirtualHost *:6270>
+      DocumentRoot /opt/scalr-server/embedded/scalr/app/www
+
+      ErrorLog  /opt/scalr-server/var/log/httpd/web.app.error.log
+      <IfModule log_config_module>
+            CustomLog /opt/scalr-server/var/log/httpd/web.app.access.log combined
+      </IfModule>
+
+      <Directory /opt/scalr-server/embedded/scalr/app/www>
+        Options -Indexes +FollowSymLinks +MultiViews
+        AllowOverride All
+        AuthType None
+        Order allow,deny
+        Allow from all
+        Satisfy All
+        Require all granted
+      </Directory>
+
+      # NOTE: We do not use the RemoteIP Module here intentionally. The RemoteIP module consumes the X-Forwarded-For
+      # header, which we want to avoid, since the Scalr app will be consuming it itself.
+
+    </VirtualHost>
 ```
