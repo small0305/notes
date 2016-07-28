@@ -160,6 +160,8 @@ public function xGetCloudServersListAction($platform, $cloudLocation)
 
 在privateIp不为空，publicIp为空的情况下，不进行后续语句的判断。
 
+此外，publicIP为10.40.\*.\*也有可能被判断为私有ip。
+
 遂修改如下：
 ```php
     public function determineServerIps(OpenStack $client, $server)
