@@ -223,7 +223,7 @@ public function xGetCloudServersListAction($platform, $cloudLocation)
 <kbd>1</kbd>+<kbd>ctrl</kbd><kbd>g</kbd>返回全局路径。
 
 ## step 4
-到github提交报告，然后看到此处代码已经被更新如下：
+到[github](https://github.com/Scalr/scalr/blob/master/app/src/Scalr/Modules/Platforms/Openstack/OpenstackPlatformModule.php)提交报告，然后看到此处代码已经被更新如下：
 ```php
 public function determineServerIps(OpenStack $client, $server)
 {
