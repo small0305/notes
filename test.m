@@ -1,6 +1,4 @@
-% do nothing
 function trafficlight = findFeasibleMediumTTS(freesp, wait, ctrlstep)
-%%ranranwoaini
 %% for test
 % freesp = freespace;
 % wait = waiting;
@@ -16,6 +14,8 @@ load inputLinkData;
 load capacity;
 load turnIn;
 load capacity0;
+load D:\bs\Control\Newinterface_lyy_sNf_medium\mpc_matlab\2016\data_res;
+load D:\data_lyy\sNfMedium\data_res;
 
 % 修正capacity
 capacity = capacity - capacity0;
@@ -23,6 +23,15 @@ miu_l = 0.35;
 miu_t = 0.35;
 % miu_input = 1000/3600;
 freespace = freespaceMat * freesp; % 将读出的数据转化为与linkData相对应的freesp
+step = size(forecast_res,2);
+pre_forecast = freespace;
+prepre_forecast = freespace;
+pre_freespace = freespace;
+if mod(step,91)>1
+    pre_forecast = forecast_res(:,step);
+    prepre_forecast = forecast_res(:,step-1);
+    pre_freespace = freespace_res(:,step);
+end
 %%
 A = zeros(28, 22); % 28roads, 11nodes*2
 c = zeros(28, 1);
@@ -107,12 +116,16 @@ A(25, 10+11) = A(25, 10+11) + miu_t; A(26, 10) = A(26, 10) + miu_l;
 A(27, 10) = A(27, 10) + miu_l;
 % A(19, 7) = miu_t;
 
-
-b = capacity * (1-0.8);
+%%%%%%%%%%%%%%%%%%%%
+b = capacity * (1-0.75);
+%%%%%%%%%%%%%%%%%%%
 traf_0 = 30 * ones(22, 1);
-inHigh = 35;
-inLow = 25;
-inMid = 30;
+% if mod(step,91)>0
+%     traf_0 = light_res(:,step);
+% end
+% inHigh = 35;
+% inLow = 25;
+% inMid = 30;
 % traf_0(1) = inHigh;  traf_0(1+11) = 60-traf_0(1);
 % traf_0(2) = inLow;   traf_0(2+11) = 60-traf_0(2);
 % traf_0(3) = inMid;   traf_0(3+11) = 60-traf_0(3);
@@ -148,16 +161,15 @@ for i = 1:N
     A_ = [A_ zeros(size(A_,1), size(A, 2))];
     A_ = [A_; Atem];
 %     size(A_)
-    b_ = [b_; b - i*c - freespace];
+    b_ = [b_; b - c - freespace];
 end
 AeqTem = [diag(diag(ones(11))) diag(diag(ones(11)))];
 Aeq = blkdiag(AeqTem, AeqTem, AeqTem);
 beq = 60 * ones(11*N, 1);
-% lb = 15*ones(22*N, 1);
-% ub = 45*ones(22*N, 1);
+%%%%%%%%
 lb = 15*ones(22*N, 1);
 ub = 45*ones(22*N, 1);
-
+%%%%%%%%
 
 % % 单步预测部分
 % b_ = b - c - freespace;
@@ -191,16 +203,6 @@ if exitflag == -2
     b_2 = b_([1:28, index+28, index+56]);
     [traf_2, ~, exitflag] = linprog(obj, -A_2, -b_2, Aeq, beq, lb, ub, traf, options);
     exit=2;
-    for i=1:11
-        if traf_2(i)>45
-            traf_2(i) = 45;
-            traf_2(i+11) = 15;
-        end
-        if traf_2(i)<15
-            traf_2(i) = 15;
-            traf_2(i+11) = 45;
-        end
-    end
     traf = traf_2;
 end
 % 所有1个周期
@@ -209,38 +211,21 @@ if exitflag == -2
     b_3 = b_(1:28);
     [traf_3, ~, exitflag] = linprog(obj, -A_3, -b_3, Aeq, beq, lb, ub, traf, options);
     exit=3;
-    for i=1:11
-        if traf_3(i)>45
-            traf_3(i) = 45;
-            traf_3(i+11) = 15;
-        end
-        if traf_3(i)<15
-            traf_3(i) = 15;
-            traf_3(i+11) = 45;
-        end
-    end
     traf = traf_3;
 end
-if exitflag==-2
-    exit = 4;
-end
+
 % 主干道1个周期
-% if exitflag == -2
-%     A_4 = A_(index, :);
-%     b_4 = b_(index);
-%     [traf_4, ~, exitflag] = linprog(obj, -A_4, -b_4, Aeq, beq, lb, ub, traf_3, options);
-%     for i=1:11
-%         if traf_4(i)>45
-%             traf_4(i) = 45;
-%             traf_4(i+11) = 15;
-%         end
-%         if traf_4(i)<15
-%             traf_4(i) = 15;
-%             traf_4(i+11) = 45;
-%         end
-%     end
-%     traf = traf_4;
-% end
+if exitflag == -2
+    exit = 4;
+    A_4 = A_(index, :);
+    b_4 = b_(index);
+    [traf_4, ~, exitflag] = linprog(obj, -A_4, -b_4, Aeq, beq, lb, ub, traf, options);
+    traf = traf_4;
+end
+
+if exitflag == -2
+    exit = 5;
+end
 % % 放松约束
 % if exitflag == -2
 %     A_5 = A_(1:28, :);
@@ -259,32 +244,43 @@ end
 %     end
 %     traf = traf_5;
 % end
-
-% for i=1:11
-%     if traf(i)>45
-%         traf(i) = 45;
-%         traf(i+11) = 15;
-%     end
-%     if traf(i)<15
-%         traf(i) = 15;
-%         traf(i+11) = 45;
-%     end
-% end
+% 加强约束
+if exit==1
+    b = capacity * (1-0.6);
+    b_ = [];
+    for i = 1:N
+        b_ = [b_; b - c -  freespace];
+    end
+    [traf_0, ~, exitflag] = linprog(obj, -A_, -b_, Aeq, beq, lb, ub, traf, options);
+    if exitflag ~= -2
+        exit = 0;
+        traf = traf_0;
+    end
+end
 trafficlight = zeros(12, 11);
 trafficlight(1:2, :) = [traf(1:11)'; traf(12:22)'];
-d = traf(1:11);
+b = traf(1:11);
 % satisfy_un = (A_*traf>=b_);
 % satisfy_un_N = [satisfy_un(1:28) satisfy_un(29:56) satisfy_un(57:end)];
 % satisfy_ = [Aeq*traf, beq];
 %% save the data
+forecast = A*traf(1:22)+freespace+0.75*(freespace-pre_forecast)+0.5*(pre_freespace-prepre_forecast)+c;
+% forecast = A*traf(1:22)+freespace+c;
+
+% forecast = A*traf(1:22)+freespace+0.5*(freespace-pre_forecast)+0.25*(pre_freespace-prepre_forecast)+c;
+forecast_res = [forecast_res,forecast];
+freespace_res = [freespace_res,freespace];
+save D:\bs\Control\Newinterface_lyy_sNf_medium\mpc_matlab\2016\data_res freespace_res forecast_res;
+
 a = toc;
-load D:\data_lyy\sNfMedium\data_res;
+
+
 content_res = [content_res, (-freespace+capacity)./capacity];
 time_res = [time_res,a];
-light_res = [light_res,trafficlight(1:11)];
+light_res = [light_res,b];
 freesp_res = [freesp_res,freesp];
 wait_res = [wait_res,wait];
-
+% 
 save D:\data_lyy\sNfMedium\data_res content_res time_res light_res freesp_res wait_res;
-
+% save D:\data_lyy\sNfMedium\data_res light_res
 end
