@@ -17,12 +17,12 @@ load capacity0;
 load D:\bs\Control\Newinterface_lyy_sNf_medium\mpc_matlab\2016\data_res;
 load D:\data_lyy\sNfMedium\data_res;
 
-% 修正capacity
+% ????capacity
 capacity = capacity - capacity0;
 miu_l = 0.35;
 miu_t = 0.35;
 % miu_input = 1000/3600;
-freespace = freespaceMat * freesp; % 将读出的数据转化为与linkData相对应的freesp
+freespace = freespaceMat * freesp; % ????????????×???????linkData?à??????freesp
 step = size(forecast_res,2);
 pre_forecast = freespace;
 prepre_forecast = freespace;
@@ -42,10 +42,10 @@ for i=1:28
     % left
     flag = 1;
     upLeftRoad = turnIn(i, 2); % 1, 2, 3 -> thru, left, right
-    % upLeftDirect 0, 1 ->EW走向, NS走向
-    if upLeftRoad >= 100    % 外围输入
+    % upLeftDirect 0, 1 ->EW×??ò, NS×??ò
+    if upLeftRoad >= 100    % ???§????
         upLeftDirect = inputLinkData(upLeftRoad-100, 5);
-    elseif upLeftRoad == 0  % 无左转路口
+    elseif upLeftRoad == 0  % ??×ó×??·??
         flag = 0;
     else
         upLeftDirect = linkData(upLeftRoad, 5);
@@ -53,8 +53,8 @@ for i=1:28
     if flag
         if upLeftDirect == 0
             A(i, up) = A(i, up) - miu_l;    % ?
-            % 在处理上游路段时同时处理了下游路段，却没考虑到输出到
-            % 外围的路段需要对矩阵A进行改动
+            % ?????í?????·???±???±???í???????·????????????????????
+            % ???§???·???è???????óA????????
             if upLeftRoad < 100
                 A(upLeftRoad, up) = A(upLeftRoad, up) + miu_l;
             end
@@ -81,7 +81,7 @@ for i=1:28
             if upThruRoad < 100
                 A(upThruRoad, up) = A(upThruRoad, up) + miu_t;
             end
-        else % 前11个表示相位1，后11个表示相位2
+        else % ?°11??±í???à??1???ó11??±í???à??2
             A(i, up+11) = A(i, up+11) - miu_t;
             if upThruRoad < 100
                 A(upThruRoad, up+11) = A(upThruRoad, up+11) + miu_t;
@@ -104,7 +104,7 @@ for i=1:28
 %     upRightPos 
 end
 
-% 输出到外围的路段单独进行处理
+% ?????????§???·?????????????í
 A(1, 1) = A(1, 1) + miu_t; A(2, 1+11) = A(2, 1+11) + miu_l;
 A(3, 2) = A(3, 2) + miu_l; c(4) = c(4) + (wait(linkData(4, 6), 3) + 10); A(5, 2+11) = A(5, 2+11) + miu_t;
 A(6, 3) = A(6, 3) + miu_l + miu_t; A(7, 3+11) = A(7, 3+11) + miu_l; c(7) = c(7) + (wait(linkData(7, 6), 3) + 10);
@@ -137,21 +137,21 @@ traf_0 = 30 * ones(22, 1);
 % traf_0(9) = inLow;   traf_0(9+11) = 60-traf_0(9);
 % traf_0(10) = inLow;  traf_0(10+11) = 60-traf_0(10);
 % traf_0(11) = inHigh; traf_0(11+11) = 60-traf_0(11);
-N = 3; % 预测周期
-% % 后面几个周期设定为有利于外围输入
+N = 3; % ?¤??????
+% % ?ó???????????è?¨???????????§????
 traf_0N = [];
 for i = 1:N
     traf_0N = [traf_0N; traf_0];
 end
 
-% % 后面几个周期设定为 30 30
+% % ?ó???????????è?¨?? 30 30
 % traf_0N = traf_0;
 % traf_1 = 30 * ones(22, 1);
 % for i = 1:N-1
 %     traf_0N = [traf_0N; traf_1];
 % end
 
-%% 多部预测部分
+%% ?à???¤????·?
 Atem = [];
 A_ = [];
 b_ = [];
@@ -171,7 +171,7 @@ lb = 15*ones(22*N, 1);
 ub = 45*ones(22*N, 1);
 %%%%%%%%
 
-% % 单步预测部分
+% % ?????¤????·?
 % b_ = b - c - freespace;
 % Aeq = [diag(diag(ones(11))) diag(diag(ones(11)))];
 % beq = 60 * ones(11, 1);
@@ -182,7 +182,7 @@ ub = 45*ones(22*N, 1);
 % options = optimset('LargeScale', 'off');
 % [traf, ~, exitflag] = linprog(obj, -A, -b_, Aeq, beq, lb, ub, traf_0, options);
 
-% % 多步预测部分
+% % ?à???¤????·?
 index = [8 12 14 17 18 19];
 % obj = zeros(22*N, 1);
 obj = -ones(1, 28*N)*A_;
@@ -197,7 +197,7 @@ obj = -ones(1, 28*N)*A_;
 options = optimset('LargeScale', 'off');
 [traf, ~, exitflag] = linprog(obj, -A_, -b_, Aeq, beq, lb, ub, traf_0N, options);
 exit=1;
-% 主干道3个周期，一般路段1个周期
+% ?÷????3??????????°??·??1??????
 if exitflag == -2
     A_2 = A_([1:28, index+28, index+56], :);
     b_2 = b_([1:28, index+28, index+56]);
@@ -205,7 +205,7 @@ if exitflag == -2
     exit=2;
     traf = traf_2;
 end
-% 所有1个周期
+% ?ù??1??????
 if exitflag == -2
     A_3 = A_(1:28, :);
     b_3 = b_(1:28);
@@ -214,7 +214,7 @@ if exitflag == -2
     traf = traf_3;
 end
 
-% 主干道1个周期
+% ?÷????1??????
 if exitflag == -2
     exit = 4;
     A_4 = A_(index, :);
@@ -226,7 +226,7 @@ end
 if exitflag == -2
     exit = 5;
 end
-% % 放松约束
+% % ·???????
 % if exitflag == -2
 %     A_5 = A_(1:28, :);
 %     b_5 = capacity - i*c - freespace;
@@ -244,19 +244,17 @@ end
 %     end
 %     traf = traf_5;
 % end
-% 加强约束
-if exit==1
-    b = capacity * (1-0.6);
-    b_ = [];
-    for i = 1:N
-        b_ = [b_; b - c -  freespace];
-    end
-    [traf_0, ~, exitflag] = linprog(obj, -A_, -b_, Aeq, beq, lb, ub, traf, options);
-    if exitflag ~= -2
-        exit = 0;
-        traf = traf_0;
-    end
-end
+
+% for i=1:11
+%     if traf(i)>45
+%         traf(i) = 45;
+%         traf(i+11) = 15;
+%     end
+%     if traf(i)<15
+%         traf(i) = 15;
+%         traf(i+11) = 45;
+%     end
+% end
 trafficlight = zeros(12, 11);
 trafficlight(1:2, :) = [traf(1:11)'; traf(12:22)'];
 b = traf(1:11);
