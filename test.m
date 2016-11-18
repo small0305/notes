@@ -1,5 +1,4 @@
-function trafficlight = findFeasibleMediumTTS(freesp, wait, ctrlstep)
-%% for test
+function trafficlight = findFeasibleMediumTTS(freesp, wait,ctrlstep)
 % freesp = freespace;
 % wait = waiting;
 % ctrlstep = 1;
@@ -185,7 +184,7 @@ ub = 45*ones(22*N, 1);
 % % 多步预测部分
 index = [8 12 14 17 18 19];
 % obj = zeros(22*N, 1);
-obj = -zeros(1, 28*N)*A_;
+obj = -ones(1, 28*N)*A_;
 
 % control_index = [4 5 6 7];
 % ones_index = zeros(1, 28*N);
@@ -226,26 +225,36 @@ end
 if exitflag == -2
     exit = 5;
 end
-% 目标函数
-if exit == 1
-    obj = -ones(1, 28*N)*A_(index,index,index);
-    [traf, ~, exitflag] = linprog(obj, -A_, -b_, Aeq, beq, lb, ub, traf, options);
-
-    traf = traf_5;
-end
-% 加强约束
-% if exit==1
-%     b = capacity * (1-0.6);
-%     b_ = [];
-%     for i = 1:N
-%         b_ = [b_; b - c -  freespace];
+% % 放松约束
+% if exitflag == -2
+%     A_5 = A_(1:28, :);
+%     b_5 = capacity - i*c - freespace;
+%     b_5 = b_5(1:28);
+%     [traf_5, ~, exitflag] = linprog(obj, -A_5, -b_5, Aeq, beq, lb, ub, traf_3, options);
+%     for i=1:11
+%         if traf_5(i)>45
+%             traf_5(i) = 45;
+%             traf_5(i+11) = 15;
+%         end
+%         if traf_5(i)<15
+%             traf_5(i) = 15;
+%             traf_5(i+11) = 45;
+%         end
 %     end
-%     [traf_0, ~, exitflag] = linprog(obj, -A_, -b_, Aeq, beq, lb, ub, traf, options);
-%     if exitflag ~= -2
-%         exit = 0;
-%         traf = traf_0;
-%     end
+%     traf = traf_5;
 % end
+% 加强约束
+
+
+if exit==1
+    non_index = [1 2 3 4 5 6 7 9 10 11 13 15 16 20 21 22 23 24 25 26 27 28];
+    obj = -ones(1, 22)*A_(non_index,:);
+    [traf_0, ~, exitflag] = linprog(obj, -A_, -b_, Aeq, beq, lb, ub, traf, options);
+    if exitflag ~= -2
+        exit = 0;
+        traf = traf_0;
+    end
+end
 trafficlight = zeros(12, 11);
 trafficlight(1:2, :) = [traf(1:11)'; traf(12:22)'];
 b = traf(1:11);
