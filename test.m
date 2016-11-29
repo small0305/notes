@@ -1,4 +1,5 @@
-function trafficlight = findFeasibleMediumTTS(freesp, wait,ctrlstep)
+function trafficlight = findFeasibleMediumTTS(freesp, wait, ctrlstep)
+%% for test
 % freesp = freespace;
 % wait = waiting;
 % ctrlstep = 1;
@@ -116,26 +117,10 @@ A(27, 10) = A(27, 10) + miu_l;
 % A(19, 7) = miu_t;
 
 %%%%%%%%%%%%%%%%%%%%
-b = capacity * (1-0.75);
+b = capacity * (1-1);
 %%%%%%%%%%%%%%%%%%%
 traf_0 = 30 * ones(22, 1);
-% if mod(step,91)>0
-%     traf_0 = light_res(:,step);
-% end
-% inHigh = 35;
-% inLow = 25;
-% inMid = 30;
-% traf_0(1) = inHigh;  traf_0(1+11) = 60-traf_0(1);
-% traf_0(2) = inLow;   traf_0(2+11) = 60-traf_0(2);
-% traf_0(3) = inMid;   traf_0(3+11) = 60-traf_0(3);
-% traf_0(4) = inHigh;  traf_0(4+11) = 60-traf_0(4);
-% traf_0(5) = inHigh;  traf_0(5+11) = 60-traf_0(5);
-% traf_0(6) = inHigh;  traf_0(6+11) = 60-traf_0(6);
-% traf_0(7) = inHigh;  traf_0(7+11) = 60-traf_0(7);
-% traf_0(8) = inMid;   traf_0(8+11) = 60-traf_0(8);
-% traf_0(9) = inLow;   traf_0(9+11) = 60-traf_0(9);
-% traf_0(10) = inLow;  traf_0(10+11) = 60-traf_0(10);
-% traf_0(11) = inHigh; traf_0(11+11) = 60-traf_0(11);
+
 N = 3; % 预测周期
 % % 后面几个周期设定为有利于外围输入
 traf_0N = [];
@@ -160,7 +145,7 @@ for i = 1:N
     A_ = [A_ zeros(size(A_,1), size(A, 2))];
     A_ = [A_; Atem];
 %     size(A_)
-    b_ = [b_; b - c - freespace-0.75*(freespace-pre_forecast)-0.5*(pre_freespace-prepre_forecast)];
+    b_ = [b_; b - c - freespace];
 end
 AeqTem = [diag(diag(ones(11))) diag(diag(ones(11)))];
 Aeq = blkdiag(AeqTem, AeqTem, AeqTem);
@@ -243,9 +228,6 @@ end
 %     end
 %     traf = traf_5;
 % end
-% 加强约束
-
-
 if exit==1
     non_index = [1 2 3 4 5 6 7 9 10 11 13 15 16 20 21 22 23 24 25 26 27 28];
     obj = -ones(1, 22)*A_(non_index,:);
@@ -255,6 +237,16 @@ if exit==1
         traf = traf_0;
     end
 end
+% for i=1:11
+%     if traf(i)>45
+%         traf(i) = 45;
+%         traf(i+11) = 15;
+%     end
+%     if traf(i)<15
+%         traf(i) = 15;
+%         traf(i+11) = 45;
+%     end
+% end
 trafficlight = zeros(12, 11);
 trafficlight(1:2, :) = [traf(1:11)'; traf(12:22)'];
 b = traf(1:11);
@@ -275,7 +267,7 @@ a = toc;
 
 content_res = [content_res, (-freespace+capacity)./capacity];
 time_res = [time_res,a];
-light_res = [light_res,trafficlight(1:11)];
+light_res = [light_res,b];
 freesp_res = [freesp_res,freesp];
 wait_res = [wait_res,wait];
 % 
