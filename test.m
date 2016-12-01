@@ -117,7 +117,7 @@ A(27, 10) = A(27, 10) + miu_l;
 % A(19, 7) = miu_t;
 
 %%%%%%%%%%%%%%%%%%%%
-b = capacity * (1-1);
+b = capacity * (1-0.75);
 %%%%%%%%%%%%%%%%%%%
 traf_0 = 30 * ones(22, 1);
 
@@ -168,8 +168,8 @@ ub = 45*ones(22*N, 1);
 
 % % 多步预测部分
 index = [8 12 14 17 18 19];
-% obj = zeros(22*N, 1);
-obj = -ones(1, 28*N)*A_;
+obj = zeros(22*N, 1);
+% obj = -ones(1, 28*N)*A_;
 
 % control_index = [4 5 6 7];
 % ones_index = zeros(1, 28*N);
@@ -230,7 +230,7 @@ end
 % end
 if exit==1
     non_index = [1 2 3 4 5 6 7 9 10 11 13 15 16 20 21 22 23 24 25 26 27 28];
-    obj = -ones(1, 22)*A_(non_index,:);
+    obj = -ones(1, 28*N)*A_;
     [traf_0, ~, exitflag] = linprog(obj, -A_, -b_, Aeq, beq, lb, ub, traf, options);
     if exitflag ~= -2
         exit = 0;
