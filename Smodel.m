@@ -112,6 +112,7 @@ function res = objective(greenlight,freesp,wait)
     end
     % 更新车辆数
     n_1_forecast = n + n_enter(1:28) - n_leave(1:28);
+    freespace = [capacity-n_1_forecast;9999];
 
     % 计算下一时刻离开车辆数
     leavemat = zeros(29,29);
@@ -144,7 +145,9 @@ function res = objective(greenlight,freesp,wait)
     end
     % 更新车辆数
     n_2_forecast = n_1_forecast + n_enter(1:28) - n_leave(1:28);
+    freespace = [capacity-n_2_forecast;9999];
 
+    
     leavemat = zeros(29,29);
     n_leave = zeros(29,1);
     n_enter = zeros(29,1);
