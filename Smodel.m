@@ -1,5 +1,11 @@
 function trafficlight = findFeasibleMediumTTS(freesp, wait, ctrlstep)
 
+load D:\data_lyy\sNfMedium\data_res;
+load F:\taoran\TTS\freespaceMat;
+load F:\taoran\TTS\capacity;
+
+tic;
+
 links_num = 28;
 nodes_num = 11;
 
@@ -13,10 +19,23 @@ x = [x;x;x];
 lb = [lb;lb;lb];
 ub = [ub;ub;ub];
 res = fmincon(@(x)objective(x,freesp,wait),x,[],[],[],[],lb,ub);
+% problem = createOptimProblem('fmincon','objective',@(x)objective(x,freesp,wait),'x0',x,'lb',lb,'ub',ub);
+% gs = GlobalSearch('TolX',1,'MaxTime',120);
+% [res,f] = run(gs,problem);
 res = res(1:11);
 
 trafficlight(1:2, :) = [res'; (60.-res)'];
 
+a = toc;
+freespace = freespaceMat * freesp;
+n = capacity - freespace;
+time_res = [time_res,a];
+light_res = [light_res,res];
+freesp_res = [freesp_res,freesp];
+wait_res = [wait_res,wait];
+content_res = [content_res, n./capacity];
+save('D:\data_lyy\sNfMedium\data_res','content_res','-append');
+save('D:\data_lyy\sNfMedium\data_res','wait_res','freesp_res','light_res','time_res','-append');
 end
 
 
