@@ -75,10 +75,18 @@ load D:\data_lyy\sNfMedium\m_A
 % save D:\data_lyy\sNfMedium\m_A m A
 
 %% multi-step control
+with_constr = false;
+alpha = 1;
+% index = [8 12 14 17 18 19];
+index = [1,4,13,16,25,21,27];
+
+if with_constr
+    alpha = 0.8;
+end
 A_ = [A,zeros(28,11),zeros(28,11);
     A,A,zeros(28,11);
     A,A,A];
-b_ = 0.8*[capacity;capacity;capacity]-[m+n;m*2+n;m*3+n];
+b_ = alpha*[capacity;capacity;capacity]-[m+n;m*2+n;m*3+n];
 
 lb = 15*ones(11*3, 1);
 ub = 45*ones(11*3, 1);
@@ -90,10 +98,10 @@ traf_0N = 30 * ones(33, 1);
 options = optimset('LargeScale', 'off');
 [traf, ~, exitflag] = linprog(obj, A_, b_, Aeq, beq, lb, ub, traf_0N, options); % A*x<=b
 exit = 1;
-index = [8 12 14 17 18 19];
+
 
 % 主干道3个周期，一般路段1个周期
-if exitflag == -2
+if exitflag == -2 && with_constr
     A_2 = A_([1:28, index+28, index+56], :);
     b_2 = b_([1:28, index+28, index+56]);
     [traf_2, ~, exitflag] = linprog(obj, A_2, b_2, Aeq, beq, lb, ub, traf, options);
@@ -126,7 +134,7 @@ if exitflag == -2
 end
 
 % 主干道1个周期
-if exitflag == -2
+if exitflag == -2 && with_constr
     exit = 4;
     A_4 = A_(index, :);
     b_4 = b_(index);
