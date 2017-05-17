@@ -75,14 +75,11 @@ load D:\data_lyy\sNfMedium\m_A
 % save D:\data_lyy\sNfMedium\m_A m A
 
 %% multi-step control
-with_constr = false;
-alpha = 1;
+alpha = 0.8;
 % index = [8 12 14 17 18 19];
-index = [1,4,13,16,25,21,27];
+index = [7,13,16,18,25,27];
 
-if with_constr
-    alpha = 0.8;
-end
+
 A_ = [A,zeros(28,11),zeros(28,11);
     A,A,zeros(28,11);
     A,A,A];
@@ -96,12 +93,26 @@ obj = -ones(1, 28*3)*A_;
 traf_0N = 30 * ones(33, 1);
 % 
 options = optimset('LargeScale', 'off');
+
+
+% 所有3个周期 正常0.8
+
+
+
 [traf, ~, exitflag] = linprog(obj, A_, b_, Aeq, beq, lb, ub, traf_0N, options); % A*x<=b
 exit = 1;
+for i=1:11
+    if traf(i)>45
+        traf(i) = 45;
+    end
+    if traf(i)<15
+        traf(i) = 15;
+    end
+end
 
 
 % 主干道3个周期，一般路段1个周期
-if exitflag == -2 && with_constr
+if exitflag == -2
     A_2 = A_([1:28, index+28, index+56], :);
     b_2 = b_([1:28, index+28, index+56]);
     [traf_2, ~, exitflag] = linprog(obj, A_2, b_2, Aeq, beq, lb, ub, traf, options);
@@ -116,6 +127,8 @@ if exitflag == -2 && with_constr
     end
     traf = traf_2;
 end
+
+
 % 所有1个周期
 if exitflag == -2
     A_3 = A_(1:28, :);
@@ -134,7 +147,7 @@ if exitflag == -2
 end
 
 % 主干道1个周期
-if exitflag == -2 && with_constr
+if exitflag == -2
     exit = 4;
     A_4 = A_(index, :);
     b_4 = b_(index);
@@ -150,8 +163,29 @@ if exitflag == -2 && with_constr
     traf = traf_4;
 end
 
+% 放松约束 
+if exitflag == -2
+    A_5 = A_;
+    b_5 = 0.9*[capacity;capacity;capacity]-[m+n;m*2+n;m*3+n];
+    [traf_5, ~, exitflag] = linprog(obj, A_5, b_5, Aeq, beq, lb, ub, traf, options);
+    exit=5;
+    for i=1:11
+        if traf_2(i)>45
+            traf_2(i) = 45;
+        end
+        if traf_2(i)<15
+            traf_2(i) = 15;
+        end
+    end
+    traf = traf_5;
+end
+
+if exitflag == -2
+    exit = 6;
+end
+
 trafficlight = zeros(12, 11);
-trafficlight(1:2, :) = [60-traf(1:11)'; traf(1:11)'];
+trafficlight(1:2, :) = [ 60-traf(1:11)';traf(1:11)'];
 b = traf(1:11);
 
 %% save the data
@@ -167,7 +201,7 @@ forecast = A*traf(1:11)+m+n;
 
 a = toc;
 
-
+% 
 content_res = [content_res, (-freespace+capacity)./capacity];
 time_res = [time_res,a];
 light_res = [light_res,b];
