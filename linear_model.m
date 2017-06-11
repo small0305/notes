@@ -168,13 +168,14 @@ if exitflag == -2
     A_5 = A_;
     b_5 = 0.9*[capacity;capacity;capacity]-[m+n;m*2+n;m*3+n];
     [traf_5, ~, exitflag] = linprog(obj, A_5, b_5, Aeq, beq, lb, ub, traf, options);
+    traf_5 = fmincon(@(x)size(find(A_*x-b_>0),1),traf_5,A_5,b_5,Aeq,beq,lb,ub);
     exit=5;
     for i=1:11
-        if traf_2(i)>45
-            traf_2(i) = 45;
+        if traf_5(i)>45
+            traf_5(i) = 45;
         end
-        if traf_2(i)<15
-            traf_2(i) = 15;
+        if traf_5(i)<15
+            traf_5(i) = 15;
         end
     end
     traf = traf_5;
